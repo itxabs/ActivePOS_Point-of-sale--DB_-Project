@@ -1,0 +1,82 @@
+-- Create the User table first
+CREATE TABLE User (
+    ID INT PRIMARY KEY AUTO_INCREMENT,
+    Username VARCHAR(50) NOT NULL UNIQUE,
+    Password VARCHAR(50) NOT NULL,
+    Type ENUM('Admin', 'Customer', 'Vendor') NOT NULL
+);
+
+-- Create the Authentication table
+CREATE TABLE Authentication (
+    LoginID INT PRIMARY KEY AUTO_INCREMENT,
+    UserID INT,
+    LoginTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES User(ID)
+);
+
+-- Create the Vendor table
+CREATE TABLE Vendor (
+    ID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(100) NOT NULL,
+    PhoneNo VARCHAR(15)
+);
+
+-- Create the Product table after Vendor table
+CREATE TABLE Product (
+    SKU INT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Price DECIMAL(10, 2) NOT NULL,
+    Quantity INT NOT NULL,
+    VendorID INT,
+    FOREIGN KEY (VendorID) REFERENCES Vendor(ID)
+);
+
+-- Create the Customer table
+CREATE TABLE Customer (
+    ID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(100) NOT NULL,
+    Address VARCHAR(255),
+    Email VARCHAR(100) NOT NULL
+);
+
+-- Create the Cart table
+CREATE TABLE Cart (
+    CartID INT PRIMARY KEY AUTO_INCREMENT,
+    CustomerID INT,
+    DateTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (CustomerID) REFERENCES Customer(ID)
+);
+
+-- Create the CartItems table
+CREATE TABLE CartItems (
+    CartItemID INT PRIMARY KEY AUTO_INCREMENT,
+    CartID INT,
+    ProductSKU INT,
+    Quantity INT NOT NULL,
+    Price DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (CartID) REFERENCES Cart(CartID),
+    FOREIGN KEY (ProductSKU) REFERENCES Product(SKU)
+);
+
+-- Create the Invoice table
+CREATE TABLE Invoice (
+    InvoiceID INT PRIMARY KEY AUTO_INCREMENT,
+    CustomerID INT,
+    DateTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    TaxAmount DECIMAL(10, 2),
+    Amount DECIMAL(10, 2) NOT NULL,
+    PaymentMethod ENUM('Cash', 'Card') NOT NULL,
+    Paid ENUM('Yes', 'No') DEFAULT 'No',
+    FOREIGN KEY (CustomerID) REFERENCES Customer(ID)
+);
+
+-- Create the Sale table last
+CREATE TABLE Sale (
+    SaleID INT PRIMARY KEY AUTO_INCREMENT,
+    InvoiceID INT,
+    ProductSKU INT,
+    Quantity INT NOT NULL,
+    Price DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (InvoiceID) REFERENCES Invoice(InvoiceID),
+    FOREIGN KEY (ProductSKU) REFERENCES Product(SKU)
+);
